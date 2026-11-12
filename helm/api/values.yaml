@@ -1,0 +1,28 @@
+replicaCount: 2
+
+image:
+  repository: 673586358557.dkr.ecr.us-east-1.amazonaws.com/cloud-native-api
+  tag: v0.1.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+serviceMonitor:
+  enabled: false   # passe à true après l'installation de Prometheus (phase 7)
+
+pdb:
+  minAvailable: 1
