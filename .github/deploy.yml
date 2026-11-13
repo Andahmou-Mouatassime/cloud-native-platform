@@ -1,0 +1,56 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", "helm/**", ".github/workflows/**"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  CLUSTER: cloud-native-platform-dev
+  ECR_REPO: cloud-native-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push
+        run: |
+          TAG=${GITHUB_SHA::7}
+          IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:$TAG
+          docker build --provenance=false -t $IMAGE app/
+          docker push $IMAGE
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Lint chart
+        run: helm lint helm/api
+
+      - name: Deploy
+        run: |
+          aws eks update-kubeconfig --name $CLUSTER --region $AWS_REGION
+          helm upgrade --install api ./helm/api -n app --create-namespace \
+            --set image.tag=$TAG --wait --timeout 3m
+
+      - name: Smoke test
+        run: |
+          kubectl get pods -n app
+          kubectl rollout status deploy/api -n app --timeout=60s
