@@ -23,7 +23,9 @@ resource "aws_iam_role" "github_actions" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
         }
       }
     }]
@@ -71,7 +73,7 @@ data "aws_caller_identity" "current" {}
 
 # Donne au role un acces Kubernetes via les access entries EKS
 resource "aws_eks_access_entry" "github_actions" {
-  cluster_name  = "cloud-native-platform-dev"
+  cluster_name  = module.eks.cluster_name
   principal_arn = aws_iam_role.github_actions.arn
   type          = "STANDARD"
 }
