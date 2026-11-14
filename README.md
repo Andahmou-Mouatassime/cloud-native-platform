@@ -2,7 +2,7 @@
 
 A cloud-native infrastructure project demonstrating how to design, provision, deploy, monitor, and maintain a containerized application on Amazon Web Services using modern DevOps practices.
 
-![Cloud-Native Platform Architecture](docs/architecture.png)
+
 
 ## Overview
 
