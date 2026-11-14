@@ -25,11 +25,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume:  arn:aws:iam::673586358557:role/github-actions-cloud-native
-          aws-region: ${{ env.AWS_REGION }}
-
       - name: Debug OIDC subject
         run: |
           curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
@@ -42,6 +37,11 @@ jobs:
           print('sub =', c['sub']); print('aud =', c['aud'])
           "
 
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::673586358557:role/github-actions-cloud-native
+          aws-region: ${{ env.AWS_REGION }}
+          
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
