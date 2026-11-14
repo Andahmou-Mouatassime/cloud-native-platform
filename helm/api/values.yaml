@@ -22,7 +22,7 @@ resources:
     memory: 128Mi
 
 serviceMonitor:
-  enabled: false   # passe à true après l'installation de Prometheus (phase 7)
+  enabled: yes   # passe à true après l'installation de Prometheus (phase 7)
 
 pdb:
   minAvailable: 1
