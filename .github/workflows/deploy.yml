@@ -27,7 +27,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: : arn:aws:iam::673586358557:role/github-actions-cloud-native
+          role-to-assume:  arn:aws:iam::673586358557:role/github-actions-cloud-native
           aws-region: ${{ env.AWS_REGION }}
 
       - id: ecr
